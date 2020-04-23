@@ -5,11 +5,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./css/styles.css">
+
+  <!-- material icon font -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   <title>Path Finding App</title>
 </head>
 
 <body>
-  <p>Hello world!</p>
+  <!-- header -->
+  <header class=header>
+    <div class=button-wrapper>
+      <div class="dropdown">
+        <button id="dropdown-btn" class="btn"><span>Choose Algorithm</span> <i class="material-icons">expand_more</i></button>
+      </div>
+      <button class="btn">Start</button>
+      <button class="btn">Draw Wall</button>
+      <button class="btn">Clear</button>
+
+      <div id="dropdown-content" class="dropdown-content">
+        <span class="dropdown-items">Algorithm 1</span>
+        <span class="dropdown-items">Algorithm 2</span>
+        <span class="dropdown-items">Algorithm 3</span>
+        <span class="dropdown-items">Algorithm 4</span>
+      </div>
+    </div>
+  </header>
+  <!-- end of header -->
+  <div class="content-divider"></div>
+  <!-- main Field -->
+  <canvas id="gridCanvas"></canvas>
+  <!-- end of main Field -->
+
+  <script src="./js/app.js">
+
+  </script>
 
 </body>
 

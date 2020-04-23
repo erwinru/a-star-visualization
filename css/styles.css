@@ -1,0 +1,101 @@
+:root {
+  --primColor: #002333;
+  --secColor: #03FF84;
+  --thirdColor: #F06543;
+  --white: #FFFFFF;
+  --gray: #D1D1D1;
+  --transition: all 0.3s linear;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ++++++++++++++++++++++++ header ++++++++++++++++++++++++*/
+.header {
+  background-color: var(--primColor);
+  padding: 1.5rem 2rem;
+}
+
+.button-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn {
+  font-size: 1rem;
+  padding: 0.4rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  background-color: var(--white);
+  color: var(--primColor);
+  border-width: 0;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+  outline: 0
+}
+
+/* .btn:hover {
+  background-color: var(--secondBlue);
+  color: var(--white);
+} */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 3.8rem;
+  background-color: var(--white);
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 0.4rem;
+}
+
+.dropdown-items {
+  display: block;
+  text-align: center;
+  font-size: 1rem;
+  padding: 0.2rem 0;
+  transition: var(--transition);
+  background-color: var(--gray);
+  cursor: pointer;
+}
+
+.show {
+  display: block;
+}
+
+.dropdown-items:hover {
+  color: var(--thirdColor);
+}
+
+/* ++++++++++++++++++++++++ end of header ++++++++++++++++++++++++*/
+.content-divider {
+  height: 0.2rem;
+  background: linear-gradient(to left, var(--secColor), var(--thirdColor), var(--secColor))
+}
+
+/* ++++++++++++++++++++++++ Canvas ++++++++++++++++++++++++*/
+body {
+  background: #111;
+  color: #f8f8f8;
+}
+
+canvas {
+  background: #f8f8f8;
+  padding: 0;
+  margin: 0;
+  width: 500px;
+  height: 500px;
+}
+
+/* ++++++++++++++++++++++++ end of Canvas ++++++++++++++++++++++++*/
