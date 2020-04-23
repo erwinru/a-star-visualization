@@ -1,3 +1,7 @@
+import {
+  Grid
+} from "./grid.js";
+
 // Dropdown for choosing Algorithm
 
 (function() {
@@ -17,4 +21,28 @@
   dropdownBtn.addEventListener("click", () => {
     dropdownContent.classList.toggle("show");
   });
+})();
+
+
+// Drawing canvas grid
+
+(function() {
+  let canvas, ctx, grid, header, contentdiv;
+
+  function init() {
+    header = document.querySelector(".header");
+    contentdiv = document.querySelector(".content-divider");
+    canvas = document.getElementById("gridCanvas");
+    ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - header.offsetHeight - contentdiv.offsetHeight;
+
+    grid = new Grid();
+    grid.drawLines(canvas, ctx);
+
+  }
+
+
+  document.addEventListener('DOMContentLoaded', init);
 })();
