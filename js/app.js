@@ -1,7 +1,3 @@
-import {
-  Grid
-} from "./grid.js";
-
 // Dropdown for choosing Algorithm
 
 (function() {
@@ -23,26 +19,37 @@ import {
   });
 })();
 
+// table grid
+(function makeGrid() {
+  const table = document.getElementById("table");
+  const header = document.getElementById("header");
+  const contentDivider = document.getElementById("content-divider");
 
-// Drawing canvas grid
+  const cellSize = 20;
+  const windowHeight = window.innerHeight;
+  const width = window.innerWidth;
+  const height = (windowHeight - header.offsetHeight - contentDivider.offsetHeight);
 
-(function() {
-  let canvas, ctx, grid, header, contentdiv;
+  function createGrid(tableElement, width, height, cellSize) {
+    let rows = Math.floor(height / cellSize);
+    let cols = Math.floor(width / cellSize);
+    let grid = "";
 
-  function init() {
-    header = document.querySelector(".header");
-    contentdiv = document.querySelector(".content-divider");
-    canvas = document.getElementById("gridCanvas");
-    ctx = canvas.getContext('2d');
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight - header.offsetHeight - contentdiv.offsetHeight;
-
-    grid = new Grid();
-    grid.drawLines(canvas, ctx);
-
+    for (let i = 0; i <= rows; i++) {
+      grid += "<tr>";
+      for (let j = 0; j <= cols; j++) {
+        grid += "<td></td>";
+      }
+      grid += "</tr>";
+    }
+    tableElement.innerHTML = grid;
   }
 
-
-  document.addEventListener('DOMContentLoaded', init);
+  createGrid(table, width, height, cellSize);
 })();
+
+
+
+// dragging items
+const start_icon = document.getElementById("start_icon");
+const canvas = document.getElementById("gridCanvas");

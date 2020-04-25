@@ -84,18 +84,31 @@
   background: linear-gradient(to left, var(--secColor), var(--thirdColor), var(--secColor))
 }
 
-/* ++++++++++++++++++++++++ Canvas ++++++++++++++++++++++++*/
-/* body {
-  background: #111;
-  color: #f8f8f8;
-} */
-canvas {
-  background: #f8f8f8;
-  /* border: 2px solid black; */
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  height: 100%;
+/* ++++++++++++++++++++++++ Main ++++++++++++++++++++++++*/
+.main {
+  position: relative;
 }
 
-/* ++++++++++++++++++++++++ end of Canvas ++++++++++++++++++++++++*/
+td {
+  border: 1px solid black;
+  padding: 4px;
+  text-align: center;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.start {
+  z-index: 2;
+  color: var(--secColor);
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+/* ++++++++++++++++++++++++ end of Main ++++++++++++++++++++++++*/
