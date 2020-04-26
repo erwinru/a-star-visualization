@@ -1,3 +1,7 @@
+import {
+  Grid
+} from "./grid.js";
+
 // Dropdown for choosing Algorithm
 
 (function() {
@@ -19,35 +23,61 @@
   });
 })();
 
-// table grid
-(function makeGrid() {
+(function main() {
   const table = document.getElementById("table");
   const header = document.getElementById("header");
   const contentDivider = document.getElementById("content-divider");
 
-  const cellSize = 20;
+  const cellSize = 25;
   const windowHeight = window.innerHeight;
   const width = window.innerWidth;
   const height = (windowHeight - header.offsetHeight - contentDivider.offsetHeight);
 
-  function createGrid(tableElement, width, height, cellSize) {
-    let rows = Math.floor(height / cellSize);
-    let cols = Math.floor(width / cellSize);
-    let grid = "";
 
-    for (let i = 0; i <= rows; i++) {
-      grid += "<tr>";
-      for (let j = 0; j <= cols; j++) {
-        grid += "<td></td>";
-      }
-      grid += "</tr>";
+  let grid = new Grid(table, width, height, cellSize);
+  grid.createGrid();
+  let start_icon = grid.placeStart();
+
+  start_icon.addEventListener("mousedown", function() {
+    if (event.target === start_icon) {
+      window.addEventListener("mousemove", moveElementEvent);
     }
-    tableElement.innerHTML = grid;
+  });
+  window.addEventListener("mouseup", function() {
+    placeElement(event);
+  });
+
+  function moveElementEvent() {
+    moveElement(event, start_icon);
   }
 
-  createGrid(table, width, height, cellSize);
-})();
+  function placeElement(event) {
+    window.removeEventListener("mousemove", moveElementEvent);
+    console.log(event);
+    start_icon.style.position = "static";
+    let cell = document.elementFromPoint(window.event.clientX, window.event.clientY);
+    // console.log(cell);
+    cell.appendChild(start_icon);
+  }
 
+
+  function moveElement(event) {
+    let x, y;
+    x = event.clientX;
+    y = event.clientY;
+    // console.log(x, y);
+    start_icon.style.position = "absolute";
+    start_icon.style.left = x + "px";
+    start_icon.style.top = y + "px";
+  }
+
+  function eventListeners(start_icon) {
+
+
+  }
+
+
+})();
 
 
 // dragging items

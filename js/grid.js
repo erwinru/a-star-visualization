@@ -1,63 +1,33 @@
-class Line {
-  constructor(color, lineWidth, startX, startY, endX, endY) {
-    this.color = color;
-    this.lineWidth = lineWidth;
-    this.startX = startX;
-    this.startY = startY;
-    this.endX = endX;
-    this.endY = endY;
-  }
-
-  draw(ctx) {
-    ctx.save();
-
-    ctx.beginPath();
-    ctx.strokeStyle = this.color;
-    ctx.lineWidth = this.lineWidth;
-    ctx.moveTo(this.startX, this.startY);
-    ctx.lineTo(this.endX, this.endY);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-}
-
-
 export class Grid {
-  constructor(
-    color = "black", lineWidth = 0.5, font = "16px Monospace", step = 20
-  ) {
-    this.color = color;
-    this.lineWidth = lineWidth;
-    this.step = step;
-    this.font = font;
-
-    this.lines = null;
+  constructor(tableElement, width, height, cellSize) {
+    this.tableElement = tableElement;
+    this.width = width;
+    this.height = height;
+    this.cellSize = cellSize;
   }
 
-  createLines(canvas) {
-    const lines = [];
+  createGrid() {
+    let rows = Math.floor(this.height / this.cellSize);
+    let cols = Math.floor(this.width / this.cellSize);
+    let tableHtml = "";
 
-    // vertical lines
-    for (let x = 0; x < canvas.width; x += this.step) {
-      lines.push(new Line(this.color, this.lineWidth, x, 0, x, canvas.height));
+    for (let row = 0; row <= rows; row++) {
+      tableHtml += `<tr>`;
+      for (let col = 0; col <= cols; col++) {
+        tableHtml += `<td class="r${row} c${col}"></td>`;
+      }
+      tableHtml += "</tr>";
     }
-    // horizontal lines
-    for (var y = 0; y < canvas.height; y += this.step) {
-      lines.push(new Line(this.color, this.lineWidth, 0, y, canvas.width, y));
-    }
-
-    this.lines = lines;
+    this.tableElement.innerHTML = tableHtml;
   }
 
-  drawLines(canvas, ctx) {
-    if (!this.lines) {
-      this.createLines(canvas);
-    }
-
-    this.lines.forEach(line => line.draw(ctx));
+  placeStart() {
+    let start_cell = this.tableElement.querySelector(".r10.c5");
+    start_cell.innerHTML = '<i class="start_icon material-icons">lens</i>';
+    let start_icon = document.querySelector(".start_icon");
+    return start_icon;
   }
 }
+
 
 export default Grid;
