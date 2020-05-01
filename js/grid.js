@@ -23,9 +23,15 @@ export class Grid {
 
   placeStart() {
     let start_cell = this.tableElement.querySelector(".r10.c5");
-    start_cell.innerHTML = '<i class="start_icon material-icons">lens</i>';
+    start_cell.innerHTML = '<i class="start_icon noselect material-icons">lens</i>';
     let start_icon = document.querySelector(".start_icon");
     return start_icon;
+  }
+  placeEnd() {
+    let end_cell = this.tableElement.querySelector(".r10.c15");
+    end_cell.innerHTML = '<i class="end_icon noselect material-icons">lens</i>';
+    let end_icon = document.querySelector(".end_icon");
+    return end_icon;
   }
 }
 

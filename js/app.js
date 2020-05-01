@@ -23,12 +23,14 @@ import {
   });
 })();
 
+
+// create grid and drag / drop items on grid
 (function main() {
   const table = document.getElementById("table");
   const header = document.getElementById("header");
   const contentDivider = document.getElementById("content-divider");
 
-  const cellSize = 25;
+  const cellSize = 25.5;
   const windowHeight = window.innerHeight;
   const width = window.innerWidth;
   const height = (windowHeight - header.offsetHeight - contentDivider.offsetHeight);
@@ -37,49 +39,32 @@ import {
   let grid = new Grid(table, width, height, cellSize);
   grid.createGrid();
   let start_icon = grid.placeStart();
+  let end_icon = grid.placeEnd();
 
-  start_icon.addEventListener("mousedown", function() {
-    if (event.target === start_icon) {
-      window.addEventListener("mousemove", moveElementEvent);
+  const moveableElements = [start_icon, end_icon];
+
+  moveableElements.forEach(element => {
+    function moveElementWrapper(event) {
+      moveElement(element);
     }
+    element.addEventListener("mousedown", function() {
+      table.addEventListener("mousemove", moveElementWrapper);
+    });
+    element.addEventListener("mouseup", function() {
+      table.removeEventListener("mousemove", moveElementWrapper);
+    });
   });
-  window.addEventListener("mouseup", function() {
-    placeElement(event);
-  });
 
-  function moveElementEvent() {
-    moveElement(event, start_icon);
-  }
+  function moveElement(element) {
+    let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+    const isStartIcon = mouseHoverElement.classList.contains("start_icon");
+    const isEndIcon = mouseHoverElement.classList.contains("end_icon");
+    const hasChilds = mouseHoverElement.hasChildNodes()
+    if (!isStartIcon && !isEndIcon && !hasChilds) {
 
-  function placeElement(event) {
-    window.removeEventListener("mousemove", moveElementEvent);
-    console.log(event);
-    start_icon.style.position = "static";
-    let cell = document.elementFromPoint(window.event.clientX, window.event.clientY);
-    // console.log(cell);
-    cell.appendChild(start_icon);
-  }
-
-
-  function moveElement(event) {
-    let x, y;
-    x = event.clientX;
-    y = event.clientY;
-    // console.log(x, y);
-    start_icon.style.position = "absolute";
-    start_icon.style.left = x + "px";
-    start_icon.style.top = y + "px";
-  }
-
-  function eventListeners(start_icon) {
-
+      mouseHoverElement.appendChild(element);
+    }
 
   }
-
 
 })();
-
-
-// dragging items
-const start_icon = document.getElementById("start_icon");
-const canvas = document.getElementById("gridCanvas");
