@@ -24,9 +24,8 @@ import {
 })();
 
 
-// create grid and drag / drop items on grid
-(function main() {
-  const table = document.getElementById("table");
+// create grid
+(function createGrid() {
   const header = document.getElementById("header");
   const contentDivider = document.getElementById("content-divider");
 
@@ -36,35 +35,6 @@ import {
   const height = (windowHeight - header.offsetHeight - contentDivider.offsetHeight);
 
 
-  let grid = new Grid(table, width, height, cellSize);
-  grid.createGrid();
-  let start_icon = grid.placeStart();
-  let end_icon = grid.placeEnd();
-
-  const moveableElements = [start_icon, end_icon];
-
-  moveableElements.forEach(element => {
-    function moveElementWrapper(event) {
-      moveElement(element);
-    }
-    element.addEventListener("mousedown", function() {
-      table.addEventListener("mousemove", moveElementWrapper);
-    });
-    element.addEventListener("mouseup", function() {
-      table.removeEventListener("mousemove", moveElementWrapper);
-    });
-  });
-
-  function moveElement(element) {
-    let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
-    const isStartIcon = mouseHoverElement.classList.contains("start_icon");
-    const isEndIcon = mouseHoverElement.classList.contains("end_icon");
-    const hasChilds = mouseHoverElement.hasChildNodes()
-    if (!isStartIcon && !isEndIcon && !hasChilds) {
-
-      mouseHoverElement.appendChild(element);
-    }
-
-  }
+  let grid = new Grid(width, height, cellSize);
 
 })();

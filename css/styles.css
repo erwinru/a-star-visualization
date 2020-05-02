@@ -124,4 +124,8 @@ table {
   color: var(--thirdColor);
 }
 
+.wall {
+  background-color: var(--primColor);
+}
+
 /* ++++++++++++++++++++++++ end of Main ++++++++++++++++++++++++*/
