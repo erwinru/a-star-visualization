@@ -16,7 +16,7 @@
 /* ++++++++++++++++++++++++ header ++++++++++++++++++++++++*/
 .header {
   background-color: var(--primColor);
-  padding: 1.5rem 2rem;
+  padding: 0.8rem 2rem;
 }
 
 .button-wrapper {
