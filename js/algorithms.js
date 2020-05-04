@@ -40,19 +40,38 @@ export class Algorithms {
   }
 
   visualizeAStar(centerPos) {
+    const suroundCells = Algorithms.getSuroundingCells(centerPos);
+    for (const [
+        cell,
+        isCenter
+      ] of suroundCells) {
+
+      if (isCenter) {
+        cell.classList.remove("cellSeen");
+        cell.classList.add("cellCenter");
+      } else {
+        if (!cell.classList.contains("cellCenter")) {
+          cell.classList.add("cellSeen");
+        }
+      }
+    }
+  }
+
+  static * getSuroundingCells(centerPos) {
     let upperLeft = [centerPos[0] - 1, centerPos[1] - 1];
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        let cell = document.querySelector(`[data-row='${upperLeft[0] + i}'][data-col='${upperLeft[1] + j}']`);
+        const cell = document.querySelector(`[data-row='${upperLeft[0] + i}'][data-col='${upperLeft[1] + j}']`);
         if (upperLeft[0] + i === centerPos[0] && upperLeft[1] + j === centerPos[1]) {
-          if (cell.classList.contains("cellSeen")) {
-            cell.classList.remove("cellSeen");
-          }
-          cell.classList.add("cellCenter");
+          yield [
+            cell,
+            true
+          ];
         } else {
-          if (!cell.classList.contains("cellCenter")) {
-            cell.classList.add("cellSeen");
-          }
+          yield [
+            cell,
+            false
+          ];
         }
       }
     }
@@ -83,6 +102,7 @@ export class Algorithms {
       self.visualizeAStar(centerPos);
     });
   }
+
 
 }
 

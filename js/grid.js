@@ -109,6 +109,8 @@ export class Grid {
       tableElement.firstChild.childNodes.forEach(tableRow => {
         tableRow.childNodes.forEach(tableCell => {
           tableCell.classList.remove("wall");
+          tableCell.classList.remove("cellSeen");
+          tableCell.classList.remove("cellCenter");
         });
       });
     });

@@ -124,10 +124,6 @@ table {
   color: var(--thirdColor);
 }
 
-.wall {
-  background-color: var(--primColor);
-}
-
 /* ++++++++++++++++++++++++ end of Main ++++++++++++++++++++++++*/
 /* +++++++++++++++ Algorithm Visualization +++++++++++++++++*/
 .cellCenter {
@@ -136,6 +132,10 @@ table {
 
 .cellSeen {
   background-color: green;
+}
+
+.wall {
+  background-color: var(--primColor);
 }
 
 /* +++++++++++++++ End of Algorithm Visualization ++++++++++++++++++*/
