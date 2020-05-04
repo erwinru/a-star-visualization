@@ -22,7 +22,7 @@ export class Grid {
     for (let row = 0; row <= rows; row++) {
       tableHtml += `<tr>`;
       for (let col = 0; col <= cols; col++) {
-        tableHtml += `<td class="r${row} c${col}"></td>`;
+        tableHtml += `<td data-row="${row}" data-col="${col}"></td>`;
       }
       tableHtml += "</tr>";
     }
@@ -30,13 +30,13 @@ export class Grid {
   }
 
   placeStart() {
-    let start_cell = this.tableElement.querySelector(".r10.c5");
+    let start_cell = this.tableElement.querySelector("[data-row='10'][data-col='5']");
     start_cell.innerHTML = '<i class="start_icon noselect material-icons">lens</i>';
     this.elements.push(document.querySelector(".start_icon"));
 
   }
   placeEnd() {
-    let end_cell = this.tableElement.querySelector(".r10.c15");
+    let end_cell = this.tableElement.querySelector("[data-row='10'][data-col='15']");
     end_cell.innerHTML = '<i class="end_icon noselect material-icons">lens</i>';
     this.elements.push(document.querySelector(".end_icon"));
   }

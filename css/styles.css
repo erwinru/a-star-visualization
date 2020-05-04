@@ -16,7 +16,7 @@
 /* ++++++++++++++++++++++++ header ++++++++++++++++++++++++*/
 .header {
   background-color: var(--primColor);
-  padding: 0.8rem 2rem;
+  padding: 1rem 2rem;
 }
 
 .button-wrapper {
@@ -129,3 +129,13 @@ table {
 }
 
 /* ++++++++++++++++++++++++ end of Main ++++++++++++++++++++++++*/
+/* +++++++++++++++ Algorithm Visualization +++++++++++++++++*/
+.cellCenter {
+  background-color: blue;
+}
+
+.cellSeen {
+  background-color: green;
+}
+
+/* +++++++++++++++ End of Algorithm Visualization ++++++++++++++++++*/
