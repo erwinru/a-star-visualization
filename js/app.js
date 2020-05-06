@@ -17,6 +17,6 @@ import {
 
 
   let grid = new Grid(width, height, cellSize);
-  let algorithms = new Algorithms();
+  let algorithms = new Algorithms(grid);
 
 })();

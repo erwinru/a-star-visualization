@@ -3,6 +3,7 @@ export class Grid {
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
+    this.cells = [];
     this.createGrid();
 
     this.elements = [];
@@ -21,10 +22,15 @@ export class Grid {
 
     for (let row = 0; row <= rows; row++) {
       tableHtml += `<tr>`;
+      let cellRow = [];
       for (let col = 0; col <= cols; col++) {
-        tableHtml += `<td data-row="${row}" data-col="${col}"></td>`;
+        const cell = new Cell([row, col]);
+        cellRow.push(cell);
+
+        tableHtml += cell.html;
       }
       tableHtml += "</tr>";
+      this.cells.push(cellRow);
     }
     this.tableElement.innerHTML = tableHtml;
   }
@@ -115,8 +121,22 @@ export class Grid {
       });
     });
   }
+}
 
+class Cell {
+  constructor(pos) {
+    this.pos = pos;
+    this.row = pos[0];
+    this.col = pos[1];
+    this.html = `<td data-row="${this.row}" data-col="${this.col}"></td>`;
+    this.fCost = null;
+    this.parent = null;
+    // this.htmlElement = document.querySelector(`[data-row='${this.row}'][data-col='${this.col}']`);
+  }
 
+  getElement() {
+    return document.querySelector(`[data-row='${this.row}'][data-col='${this.col}']`);
+  }
 }
 
 
