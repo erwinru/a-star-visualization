@@ -1,9 +1,12 @@
 export class Algorithms {
-  constructor() {
+  constructor(grid) {
+    console.log(grid);
+    this.cells = grid.cells;
+    // console.log(this.cells);
     this.mode = null;
-    this.algoDict = {
-      "a-star": this.aStar
-    };
+    // this.algoDict = {
+    //   "a-star": this.aStar
+    // };
     this.dropDownMenu();
     this.startAlgo();
   }
@@ -34,44 +37,24 @@ export class Algorithms {
 
   }
 
-  getPosFromElement(element) {
-    const pos = [parseInt(element.dataset.row), parseInt(element.dataset.col)];
-    return pos;
-  }
+  visualizeAStar(currentCell) {
+    currentCell.getElement().classList.add("cellCenter");
 
-  visualizeAStar(centerPos) {
-    const suroundCells = Algorithms.getSuroundingCells(centerPos);
-    for (const [
-        cell,
-        isCenter
-      ] of suroundCells) {
-
-      if (isCenter) {
-        cell.classList.remove("cellSeen");
-        cell.classList.add("cellCenter");
-      } else {
-        if (!cell.classList.contains("cellCenter")) {
-          cell.classList.add("cellSeen");
-        }
+    const neighborCells = this.getNeighbourCells(currentCell);
+    for (const cell of neighborCells) {
+      if (!cell.getElement().classList.contains("cellCenter")) {
+        cell.getElement().classList.add("cellSeen");
       }
     }
   }
 
-  static * getSuroundingCells(centerPos) {
-    let upperLeft = [centerPos[0] - 1, centerPos[1] - 1];
+  * getNeighbourCells(centerCell) {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        const cell = document.querySelector(`[data-row='${upperLeft[0] + i}'][data-col='${upperLeft[1] + j}']`);
-        if (upperLeft[0] + i === centerPos[0] && upperLeft[1] + j === centerPos[1]) {
-          yield [
-            cell,
-            true
-          ];
-        } else {
-          yield [
-            cell,
-            false
-          ];
+        let currCell = this.cells[centerCell.pos[0] - 1 + i][centerCell.pos[1] - 1 + j];
+        if (currCell !== centerCell) {
+          console.log(currCell);
+          yield currCell;
         }
       }
     }
@@ -84,23 +67,95 @@ export class Algorithms {
       // self.algoDict[`${self.mode}`]();
       self.aStar();
     });
+  }
 
-
+  getPosFromElement(element) {
+    return [parseInt(element.dataset.row), parseInt(element.dataset.col)];
   }
 
   aStar() {
+    const self = this;
     const startIcon = table.querySelector(".start_icon");
     const endIcon = table.querySelector(".end_icon");
 
-    let startPos = this.getPosFromElement(startIcon.parentElement);
-    let endPos = this.getPosFromElement(endIcon.parentElement);
+    const startPos = this.getPosFromElement(startIcon.parentElement);
+    const endPos = this.getPosFromElement(endIcon.parentElement);
 
-    const self = this;
-    table.addEventListener("click", function() {
-      let mouseClickElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
-      let centerPos = self.getPosFromElement(mouseClickElement);
-      self.visualizeAStar(centerPos);
-    });
+    // console.log(startPos, endPos);
+    for (const cellRow of self.cells) {
+      for (const cell of cellRow) {
+        if (cell.pos[0] === startPos[0] && cell.pos[1] === startPos[1]) {
+          this.startCell = cell;
+        }
+        if (cell.pos[0] === endPos[0] && cell.pos[1] === endPos[1]) {
+          this.endCell = cell;
+        }
+      }
+
+    }
+
+
+    let open = []; // set of cells to be calculated
+    let closed = []; // set of cells already evaluated
+
+    open.push(this.startCell);
+    while (true) {
+      const current = this.getMinFCostCell(open);
+      Algorithms.removeFromArray(open, current);
+      closed.push(current);
+      this.visualizeAStar(current);
+
+
+      if (current === this.endCell) {
+        return console.log("Path found");
+      }
+
+      for (const neighbour of this.getNeighbourCells(current)) {
+        if (neighbour.getElement().classList.contains("wall") || closed.includes(neighbour)) {
+          continue;
+        }
+
+        if (!open.includes(neighbour)) {
+          self.setFCost(neighbour);
+          neighbour.parent = current;
+
+          if (!open.includes(neighbour)) {
+            open.push(neighbour);
+          }
+        }
+      }
+    }
+  }
+
+  static removeFromArray(array, current) {
+    for (var i = 0; i < array.length; i++) {
+      if (array[i] === current) {
+        array.splice(i, 1);
+      }
+    }
+  }
+
+  getMinFCostCell(open) {
+    let minFCost = Infinity;
+    let bestCell = null;
+    for (const currCell of open) {
+      this.setFCost(currCell);
+      if (currCell.fCost < minFCost) {
+        minFCost = currCell.fCost;
+        bestCell = currCell;
+      }
+    }
+    return bestCell;
+  }
+
+  static calcDistance(currPos, relPos) {
+    return Math.sqrt((currPos[0] - relPos[0]) ** 2 + (currPos[1] - relPos[1]) ** 2) * 10;
+  }
+
+  setFCost(currCell) {
+    const gCost = Algorithms.calcDistance(currCell.pos, this.startCell.pos);
+    const hCost = Algorithms.calcDistance(currCell.pos, this.endCell.pos);
+    currCell.fCost = gCost + hCost;
   }
 
 
