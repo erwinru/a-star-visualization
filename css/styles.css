@@ -134,6 +134,10 @@ table {
   background-color: green;
 }
 
+.shortestPath {
+  background-color: red;
+}
+
 .wall {
   background-color: var(--primColor);
 }

@@ -1,77 +1,94 @@
-export class Grid {
-  constructor(width, height, cellSize) {
-    this.width = width;
-    this.height = height;
-    this.cellSize = cellSize;
-    this.cells = [];
-    this.createGrid();
+class Grid {
+  constructor(gridSizeX, gridSizeY) {
+    this.gridSizeX = gridSizeX;
+    this.gridSizeY = gridSizeY;
 
+    this.grid = [];
+    this.createGrid();
+  }
+
+  createGrid() {
+    this.tableHtml = "";
+
+    for (let row = 0; row <= this.gridSizeY; row++) {
+      this.tableHtml += `<tr>`;
+      let cellRow = [];
+      for (let col = 0; col <= this.gridSizeX; col++) {
+        const cell = new Cell(col, row);
+        cellRow.push(cell);
+        this.tableHtml += cell.html;
+      }
+      this.tableHtml += "</tr>";
+      this.grid.push(cellRow);
+    }
+  }
+
+  * getNeighbourCells(cell) {
+    for (let x = -1; x <= 1; x++) {
+      for (let y = -1; y <= 1; y++) {
+
+        if (x === 0 && y === 0) {
+          continue;
+        }
+
+        const checkX = cell.x + x;
+        const checkY = cell.y + y;
+
+        if (checkX >= 0 && checkX <= this.gridSizeX && checkY >= 0 && checkY <= this.gridSizeY) {
+          yield this.grid[checkY][checkX];
+        }
+      }
+    }
+  }
+}
+
+class Cell {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.pos = [x, y];
+    this.html = `<td data-col="${this.x}" data-row="${this.y}" ></td>`;
+    this.g = null;
+    this.h = null;
+    this.f = null;
+    this.parent = null;
+  }
+
+  getElement() {
+    return document.querySelector(`[data-col='${this.x}'][data-row='${this.y}']`);
+  }
+}
+
+class UI {
+  constructor(grid, algorithms) {
+    this.tableElement = document.getElementById("table");
+    this.tableElement.innerHTML = grid.tableHtml;
+    this.grid = grid.grid;
     this.elements = [];
+    this.mode = null;
     this.placeStart();
     this.placeEnd();
     this.makeElementsMoveable();
     this.drawWall();
     this.clearWall();
+    this.dropDownMenu();
+
+
+    this.startAlgo(algorithms);
   }
 
-  createGrid() {
-    this.tableElement = document.getElementById("table");
-    let rows = Math.floor(this.height / this.cellSize);
-    let cols = Math.floor(this.width / this.cellSize);
-    let tableHtml = "";
-
-    for (let row = 0; row <= rows; row++) {
-      tableHtml += `<tr>`;
-      let cellRow = [];
-      for (let col = 0; col <= cols; col++) {
-        const cell = new Cell([row, col]);
-        cellRow.push(cell);
-
-        tableHtml += cell.html;
-      }
-      tableHtml += "</tr>";
-      this.cells.push(cellRow);
-    }
-    this.tableElement.innerHTML = tableHtml;
-  }
-
-  placeStart() {
-    let start_cell = this.tableElement.querySelector("[data-row='10'][data-col='5']");
-    start_cell.innerHTML = '<i class="start_icon noselect material-icons">lens</i>';
-    this.elements.push(document.querySelector(".start_icon"));
-
-  }
-  placeEnd() {
-    let end_cell = this.tableElement.querySelector("[data-row='10'][data-col='15']");
-    end_cell.innerHTML = '<i class="end_icon noselect material-icons">lens</i>';
-    this.elements.push(document.querySelector(".end_icon"));
-  }
-
-  makeElementsMoveable() {
-
-    this.elements.forEach(element => {
-      function moveElementWrapper(event) {
-        moveElement(element);
-      }
-      element.addEventListener("mousedown", function() {
-        table.addEventListener("mousemove", moveElementWrapper);
-      });
-      element.addEventListener("mouseup", function() {
-        table.removeEventListener("mousemove", moveElementWrapper);
+  clearWall() {
+    const clearBtn = document.getElementById("clear");
+    clearBtn.addEventListener("click", () => {
+      this.tableElement.firstChild.childNodes.forEach(tableRow => {
+        tableRow.childNodes.forEach(tableCell => {
+          tableCell.classList.remove("wall");
+          tableCell.classList.remove("cellSeen");
+          tableCell.classList.remove("cellCenter");
+          tableCell.classList.remove("shortestPath");
+        });
       });
     });
-
-    function moveElement(element) {
-      let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
-      const isStartIcon = mouseHoverElement.classList.contains("start_icon");
-      const isEndIcon = mouseHoverElement.classList.contains("end_icon");
-      const hasChilds = mouseHoverElement.hasChildNodes();
-      if (!isStartIcon && !isEndIcon && !hasChilds) {
-
-        mouseHoverElement.appendChild(element);
-      }
-
-    }
   }
 
   drawWall() {
@@ -105,39 +122,103 @@ export class Grid {
         emptySquare.classList.add("wall");
       }
     }
-
   }
 
-  clearWall() {
-    const clearBtn = document.getElementById("clear");
-    const tableElement = this.tableElement;
-    clearBtn.addEventListener("click", function() {
-      tableElement.firstChild.childNodes.forEach(tableRow => {
-        tableRow.childNodes.forEach(tableCell => {
-          tableCell.classList.remove("wall");
-          tableCell.classList.remove("cellSeen");
-          tableCell.classList.remove("cellCenter");
+  makeElementsMoveable() {
+
+    this.elements.forEach(element => {
+      function moveElementWrapper(event) {
+        moveElement(element);
+      }
+      element.addEventListener("mousedown", function() {
+        table.addEventListener("mousemove", moveElementWrapper);
+      });
+      element.addEventListener("mouseup", function() {
+        table.removeEventListener("mousemove", moveElementWrapper);
+      });
+    });
+
+    function moveElement(element) {
+      let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+      const isStartIcon = mouseHoverElement.classList.contains("start_icon");
+      const isEndIcon = mouseHoverElement.classList.contains("end_icon");
+      const hasChilds = mouseHoverElement.hasChildNodes();
+      if (!isStartIcon && !isEndIcon && !hasChilds) {
+        mouseHoverElement.appendChild(element);
+      }
+    }
+  }
+
+  placeStart() {
+    let start_cell = this.tableElement.querySelector("[data-col='5'][data-row='10']");
+    start_cell.innerHTML = '<i class="start_icon noselect material-icons">lens</i>';
+    this.elements.push(document.querySelector(".start_icon"));
+
+  }
+  placeEnd() {
+    let end_cell = this.tableElement.querySelector("[data-col='15'][data-row='10']");
+    end_cell.innerHTML = '<i class="end_icon noselect material-icons">lens</i>';
+    this.elements.push(document.querySelector(".end_icon"));
+  }
+
+  dropDownMenu() {
+    const dropdownBtn = document.getElementById("dropdown-btn");
+    const dropdownContent = document.getElementById("dropdown-content");
+    const algoName = document.getElementById("algo-name");
+
+    dropdownBtn.addEventListener("click", () => {
+      dropdownContent.classList.toggle("show");
+    });
+
+    window.onclick = function(event) {
+      if (event.target != dropdownBtn && event.target.parentElement != dropdownBtn) {
+        if (dropdownContent.classList.contains("show")) {
+          dropdownContent.classList.remove("show");
+        }
+      }
+    };
+
+    dropdownContent.childNodes.forEach(option => {
+      option.addEventListener("click", () => {
+        algoName.textContent = option.textContent;
+        this.mode = option.id;
+      });
+    });
+  }
+
+  startAlgo(algorithms) {
+    function clearBeforeStart(grid) {
+      grid.forEach(cellRow => {
+        cellRow.forEach(cell => {
+          cell.g = null;
+          cell.h = null;
+          cell.f = null;
+          cell.getElement().classList.remove("cellSeen");
+          cell.getElement().classList.remove("cellCenter");
+          cell.getElement().classList.remove("shortestPath");
         });
       });
+    }
+
+    const startBtn = document.getElementById("start");
+    startBtn.addEventListener("click", () => {
+      if (this.mode == "a-star") {
+        clearBeforeStart(this.grid);
+        algorithms.aStar(5);
+      } else {
+        startBtn.innerText = "Choose Algorithm!";
+        startBtn.style.color = "red";
+        setTimeout(() => {
+          startBtn.innerText = "Start";
+          startBtn.style.color = "black";
+        }, 1500);
+      }
     });
   }
 }
 
-class Cell {
-  constructor(pos) {
-    this.pos = pos;
-    this.row = pos[0];
-    this.col = pos[1];
-    this.html = `<td data-row="${this.row}" data-col="${this.col}"></td>`;
-    this.fCost = null;
-    this.parent = null;
-    // this.htmlElement = document.querySelector(`[data-row='${this.row}'][data-col='${this.col}']`);
-  }
 
-  getElement() {
-    return document.querySelector(`[data-row='${this.row}'][data-col='${this.col}']`);
-  }
-}
-
-
-export default Grid;
+export {
+  Grid,
+  UI
+};

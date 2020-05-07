@@ -1,5 +1,6 @@
 import {
-  Grid
+  Grid,
+  UI
 } from "./grid.js";
 import {
   Algorithms
@@ -15,8 +16,12 @@ import {
   const width = window.innerWidth;
   const height = (windowHeight - header.offsetHeight - contentDivider.offsetHeight);
 
+  let gridSizeY = Math.floor(height / cellSize);
+  let gridSizeX = Math.floor(width / cellSize);
 
-  let grid = new Grid(width, height, cellSize);
+
+  let grid = new Grid(gridSizeX, gridSizeY);
   let algorithms = new Algorithms(grid);
+  new UI(grid, algorithms);
 
 })();
