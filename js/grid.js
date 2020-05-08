@@ -5,6 +5,9 @@ class Grid {
 
     this.grid = [];
     this.createGrid();
+    this.elements = [];
+    this.placeElement(5, Math.floor(gridSizeY / 2), "start");
+    this.placeElement(gridSizeX - 5, Math.floor(gridSizeY / 2), "end");
   }
 
   createGrid() {
@@ -21,6 +24,7 @@ class Grid {
       this.tableHtml += "</tr>";
       this.grid.push(cellRow);
     }
+    document.getElementById("table").innerHTML = this.tableHtml;
   }
 
   * getNeighbourCells(cell) {
@@ -39,6 +43,47 @@ class Grid {
         }
       }
     }
+  }
+
+  placeElement(x, y, type) {
+    const element = new GridElement(x, y, type);
+    let cell = document.getElementById("table").querySelector(`[data-col='${element.x}'][data-row='${element.y}']`);
+    cell.innerHTML = element.html;
+    element.makeMoveable();
+    this.elements.push(element.getElement());
+  }
+}
+
+class GridElement {
+  constructor(x, y, type) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+    this.html = `<i class="${this.type}_icon noselect material-icons">lens</i>`;
+  }
+
+  getElement() {
+    return document.querySelector(`.${this.type}_icon`);
+  }
+
+  makeMoveable() {
+    this.getElement().addEventListener("mousedown", function() {
+      table.addEventListener("mousemove", moveElement);
+    });
+    this.getElement().addEventListener("mouseup", function() {
+      table.removeEventListener("mousemove", moveElement);
+    });
+
+
+    let moveElement = () => {
+      let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+      const isStartIcon = mouseHoverElement.classList.contains("start_icon");
+      const isEndIcon = mouseHoverElement.classList.contains("end_icon");
+      const hasChilds = mouseHoverElement.hasChildNodes();
+      if (!isStartIcon && !isEndIcon && !hasChilds) {
+        mouseHoverElement.appendChild(this.getElement());
+      }
+    };
   }
 }
 
@@ -61,18 +106,11 @@ class Cell {
 
 class UI {
   constructor(grid, algorithms) {
-    this.tableElement = document.getElementById("table");
-    this.tableElement.innerHTML = grid.tableHtml;
     this.grid = grid.grid;
-    this.elements = [];
     this.mode = null;
-    this.placeStart();
-    this.placeEnd();
-    this.makeElementsMoveable();
     this.drawWall();
     this.clearWall();
     this.dropDownMenu();
-
 
     this.startAlgo(algorithms);
   }
@@ -80,7 +118,7 @@ class UI {
   clearWall() {
     const clearBtn = document.getElementById("clear");
     clearBtn.addEventListener("click", () => {
-      this.tableElement.firstChild.childNodes.forEach(tableRow => {
+      document.getElementById("table").firstChild.childNodes.forEach(tableRow => {
         tableRow.childNodes.forEach(tableCell => {
           tableCell.classList.remove("wall");
           tableCell.classList.remove("cellSeen");
@@ -94,96 +132,72 @@ class UI {
   drawWall() {
     const DrawBtn = document.getElementById("draw-wall");
     let drawing = true;
-    DrawBtn.addEventListener("click", function() {
-      if (drawing) {
-        drawing = false;
-        DrawBtn.textContent = "Stop Drawing";
 
-        table.addEventListener("mousedown", startDrawing);
-        table.addEventListener("mouseup", function() {
-          table.removeEventListener("mousemove", fillOutSquares);
-        });
-      } else {
-        drawing = true;
-        DrawBtn.textContent = "Draw Wall";
-        table.removeEventListener("mousedown", startDrawing);
-
+    table.addEventListener("mousedown", () => {
+      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+      const isEmptyCell = !mouseHoverElement.hasChildNodes() && mouseHoverElement.nodeName === "TD";
+      if (isEmptyCell) {
+        if (mouseHoverElement.classList.contains("wall")) {
+          table.addEventListener("mousemove", erase);
+          table.addEventListener("mouseup", () => {
+            table.removeEventListener("mousemove", erase);
+          });
+        } else {
+          table.addEventListener("mousemove", draw);
+          table.addEventListener("mouseup", () => {
+            table.removeEventListener("mousemove", draw);
+          });
+        }
       }
     });
 
-    function startDrawing() {
-      table.addEventListener("mousemove", fillOutSquares);
+    function draw() {
+      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+      mouseHoverElement.classList.add("wall");
     }
 
-    function fillOutSquares() {
-      let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
-      if (!mouseHoverElement.hasChildNodes() && mouseHoverElement.nodeName === "TD") {
-        const emptySquare = mouseHoverElement;
-        emptySquare.classList.add("wall");
-      }
+    function erase() {
+      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+      mouseHoverElement.classList.remove("wall");
     }
-  }
-
-  makeElementsMoveable() {
-
-    this.elements.forEach(element => {
-      function moveElementWrapper(event) {
-        moveElement(element);
-      }
-      element.addEventListener("mousedown", function() {
-        table.addEventListener("mousemove", moveElementWrapper);
-      });
-      element.addEventListener("mouseup", function() {
-        table.removeEventListener("mousemove", moveElementWrapper);
-      });
-    });
-
-    function moveElement(element) {
-      let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
-      const isStartIcon = mouseHoverElement.classList.contains("start_icon");
-      const isEndIcon = mouseHoverElement.classList.contains("end_icon");
-      const hasChilds = mouseHoverElement.hasChildNodes();
-      if (!isStartIcon && !isEndIcon && !hasChilds) {
-        mouseHoverElement.appendChild(element);
-      }
-    }
-  }
-
-  placeStart() {
-    let start_cell = this.tableElement.querySelector("[data-col='5'][data-row='10']");
-    start_cell.innerHTML = '<i class="start_icon noselect material-icons">lens</i>';
-    this.elements.push(document.querySelector(".start_icon"));
-
-  }
-  placeEnd() {
-    let end_cell = this.tableElement.querySelector("[data-col='15'][data-row='10']");
-    end_cell.innerHTML = '<i class="end_icon noselect material-icons">lens</i>';
-    this.elements.push(document.querySelector(".end_icon"));
   }
 
   dropDownMenu() {
-    const dropdownBtn = document.getElementById("dropdown-btn");
-    const dropdownContent = document.getElementById("dropdown-content");
-    const algoName = document.getElementById("algo-name");
+    const dropdownBtns = document.querySelectorAll("#dropdown-btn");
+    const dropdownContents = document.querySelectorAll("#dropdown-content");
+    // const algoName = document.getElementById("algo-name");
 
-    dropdownBtn.addEventListener("click", () => {
-      dropdownContent.classList.toggle("show");
-    });
 
-    window.onclick = function(event) {
-      if (event.target != dropdownBtn && event.target.parentElement != dropdownBtn) {
-        if (dropdownContent.classList.contains("show")) {
-          dropdownContent.classList.remove("show");
-        }
-      }
-    };
-
-    dropdownContent.childNodes.forEach(option => {
-      option.addEventListener("click", () => {
-        algoName.textContent = option.textContent;
-        this.mode = option.id;
+    dropdownBtns.forEach((btn) => {
+      const dropdownContent = btn.nextElementSibling;
+      btn.addEventListener("click", () => {
+        dropdownContent.classList.toggle("show");
       });
+
+      window.addEventListener("click", function(event) {
+        if (event.target != btn && event.target.parentElement != btn) {
+          if (dropdownContent.classList.contains("show")) {
+            dropdownContent.classList.remove("show");
+          }
+        }
+      });
+
+      dropdownContent.childNodes.forEach(option => {
+        option.addEventListener("click", () => {
+          btn.firstChild.textContent = option.textContent;
+          if (btn.classList.contains("algorithms")) {
+            this.mode = option.id;
+          } else {
+            this.heuristic = option.id;
+          }
+        });
+      });
+
     });
+
+
+
+
   }
 
   startAlgo(algorithms) {

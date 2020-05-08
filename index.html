@@ -11,6 +11,7 @@
   <!-- material icon font -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
+
   <title>Path Finding App</title>
 </head>
 
@@ -18,19 +19,32 @@
   <!-- header -->
   <header id="header" class=header>
     <div class=button-wrapper>
+      <!-- algorithms -->
       <div class="dropdown">
-        <button id="dropdown-btn" class="btn"><span id="algo-name">Choose Algorithm</span> <i class="material-icons">expand_more</i></button>
-      </div>
-      <button id="start" class="btn">Start</button>
-      <button id="draw-wall" class="btn">Draw Wall</button>
-      <button id="clear" class="btn">Clear</button>
+        <span id="dropdown-btn" class="algorithms btn"><span id="algo-name">Algorithm</span> <i class="material-icons">expand_more</i></span>
 
-      <div id="dropdown-content" class="dropdown-content">
-        <span id="a-star" class="dropdown-items">A-star</span>
-        <span id="" class="dropdown-items">Algorithm 2</span>
-        <span id="" class="dropdown-items">Algorithm 3</span>
-        <span id="" class="dropdown-items">Algorithm 4</span>
+        <div id="dropdown-content" class="dropdown-content">
+          <span id="a-star" class="dropdown-items">A-star</span>
+          <span id="" class="dropdown-items">Algorithm 2</span>
+          <span id="" class="dropdown-items">Algorithm 3</span>
+          <span id="" class="dropdown-items">Algorithm 4</span>
+        </div>
       </div>
+      <!-- heuristics -->
+      <div class="dropdown">
+        <span id="dropdown-btn" class="btn heuristics"><span id="heuristic-name">Heuristic</span> <i class="material-icons">expand_more</i></span>
+
+        <div id="dropdown-content" class="dropdown-content">
+          <span id="euclidian" class="dropdown-items">Euclidian</span>
+          <span id="" class="dropdown-items">Algorithm 2</span>
+          <span id="" class="dropdown-items">Algorithm 3</span>
+          <span id="" class="dropdown-items">Algorithm 4</span>
+        </div>
+      </div>
+      <!-- start -->
+      <span id="start" class="btn">Start</span>
+      <!-- clear -->
+      <span id="clear" class="btn">Clear</span>
     </div>
   </header>
   <!-- end of header -->
