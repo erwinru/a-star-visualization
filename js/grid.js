@@ -2,6 +2,7 @@ class Grid {
   constructor(gridSizeX, gridSizeY) {
     this.gridSizeX = gridSizeX;
     this.gridSizeY = gridSizeY;
+    this.path = null;
 
     this.grid = [];
     this.createGrid();
@@ -45,12 +46,56 @@ class Grid {
     }
   }
 
+  visualizeAStar(currentCell) {
+    currentCell.getElement().classList.remove("cellSeen");
+    currentCell.getElement().classList.add("cellCenter");
+
+    const neighborCells = this.getNeighbourCells(currentCell);
+    for (const cell of neighborCells) {
+      if (!cell.getElement().classList.contains("cellCenter")) {
+        cell.getElement().classList.add("cellSeen");
+      }
+    }
+  }
+
+  retracePath(startCell, endCell) {
+    let path = [];
+    let currentCell = endCell;
+    while (currentCell !== startCell) {
+      path.push(currentCell);
+      currentCell = currentCell.parent;
+
+    }
+    path.reverse();
+
+    if (this.path !== null) {
+      for (const cell of this.path) {
+        cell.getElement().classList.remove("shortestPath");
+      }
+    }
+
+    this.path = path;
+    console.log(this.path);
+    for (const cell of this.path) {
+      cell.getElement().classList.add("shortestPath");
+    }
+
+    // currCell.getElement().classList.add("shortestPath");
+    // if (currCell !== startCell) {
+    //   this.retracePath(startCell, currCell.parent);
+    // }
+  }
+
+  visualizePath() {
+
+  }
+
   placeElement(x, y, type) {
     const element = new GridElement(x, y, type);
     let cell = document.getElementById("table").querySelector(`[data-col='${element.x}'][data-row='${element.y}']`);
     cell.innerHTML = element.html;
-    element.makeMoveable();
-    this.elements.push(element.getElement());
+    // element.makeMoveable();
+    this.elements.push(element);
   }
 }
 
@@ -59,31 +104,12 @@ class GridElement {
     this.x = x;
     this.y = y;
     this.type = type;
+    this.showPath = false;
     this.html = `<i class="${this.type}_icon noselect material-icons">lens</i>`;
   }
 
   getElement() {
     return document.querySelector(`.${this.type}_icon`);
-  }
-
-  makeMoveable() {
-    this.getElement().addEventListener("mousedown", function() {
-      table.addEventListener("mousemove", moveElement);
-    });
-    this.getElement().addEventListener("mouseup", function() {
-      table.removeEventListener("mousemove", moveElement);
-    });
-
-
-    let moveElement = () => {
-      let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
-      const isStartIcon = mouseHoverElement.classList.contains("start_icon");
-      const isEndIcon = mouseHoverElement.classList.contains("end_icon");
-      const hasChilds = mouseHoverElement.hasChildNodes();
-      if (!isStartIcon && !isEndIcon && !hasChilds) {
-        mouseHoverElement.appendChild(this.getElement());
-      }
-    };
   }
 }
 
@@ -106,13 +132,17 @@ class Cell {
 
 class UI {
   constructor(grid, algorithms) {
+    this.gridObj = grid;
     this.grid = grid.grid;
-    this.mode = null;
+    this.elements = grid.elements;
+    this.algorithm = null;
+    this.heuristic = null;
     this.drawWall();
     this.clearWall();
     this.dropDownMenu();
 
     this.startAlgo(algorithms);
+    this.makeElementsMoveable();
   }
 
   clearWall() {
@@ -124,6 +154,7 @@ class UI {
           tableCell.classList.remove("cellSeen");
           tableCell.classList.remove("cellCenter");
           tableCell.classList.remove("shortestPath");
+          this.elements.forEach(element => element.showPath = false);
         });
       });
     });
@@ -186,18 +217,13 @@ class UI {
         option.addEventListener("click", () => {
           btn.firstChild.textContent = option.textContent;
           if (btn.classList.contains("algorithms")) {
-            this.mode = option.id;
+            this.algorithm = option.id;
           } else {
             this.heuristic = option.id;
           }
         });
       });
-
     });
-
-
-
-
   }
 
   startAlgo(algorithms) {
@@ -216,17 +242,51 @@ class UI {
 
     const startBtn = document.getElementById("start");
     startBtn.addEventListener("click", () => {
-      if (this.mode == "a-star") {
-        clearBeforeStart(this.grid);
-        algorithms.aStar(5);
-      } else {
+      if (this.algorithm === null) {
         startBtn.innerText = "Choose Algorithm!";
-        startBtn.style.color = "red";
+        startBtn.classList.add("alert");
         setTimeout(() => {
           startBtn.innerText = "Start";
-          startBtn.style.color = "black";
+          startBtn.classList.remove("alert");
         }, 1500);
+      } else if (this.heuristic === null) {
+        startBtn.innerText = "Choose Heuristic!";
+        startBtn.classList.add("alert");
+        setTimeout(() => {
+          startBtn.innerText = "Start";
+          startBtn.classList.remove("alert");
+        }, 1500);
+      } else {
+        clearBeforeStart(this.grid);
+        this.elements.forEach(element => element.showPath = true);
+        algorithms.aStar(5, this.heuristic, this.elements[0], this.elements[1]);
       }
+    });
+  }
+  makeElementsMoveable() {
+    this.elements.forEach(element => {
+      element.getElement().addEventListener("mousedown", function() {
+        table.addEventListener("mousemove", moveElement);
+      });
+      element.getElement().addEventListener("mouseup", function() {
+        table.removeEventListener("mousemove", moveElement);
+      });
+
+      let moveElement = () => {
+        let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+        const isStartIcon = mouseHoverElement.classList.contains("start_icon");
+        const isEndIcon = mouseHoverElement.classList.contains("end_icon");
+        const hasChilds = mouseHoverElement.hasChildNodes();
+        if (!isStartIcon && !isEndIcon && !hasChilds) {
+          element.x = mouseHoverElement.dataset.col;
+          element.y = mouseHoverElement.dataset.row;
+          mouseHoverElement.appendChild(element.getElement());
+          if (element.showPath) {
+            console.log(this.grid[this.elements[0].y][this.elements[0].x]);
+            this.gridObj.retracePath(this.grid[this.elements[0].y][this.elements[0].x], this.grid[this.elements[1].y][this.elements[1].x]);
+          }
+        }
+      };
     });
   }
 }

@@ -87,6 +87,10 @@
   color: var(--thirdColor);
 }
 
+.alert {
+  color: red;
+}
+
 /* ++++++++++++++++++++++++ end of header ++++++++++++++++++++++++*/
 .content-divider {
   height: 0.2rem;
@@ -140,7 +144,7 @@ table {
 }
 
 .cellSeen {
-  background-color: gray;
+  background-color: #8a817c;
 }
 
 .shortestPath {
@@ -148,7 +152,7 @@ table {
 }
 
 .wall {
-  background-color: #99582a;
+  background-color: var(--primColor);
 }
 
 /* +++++++++++++++ End of Algorithm Visualization ++++++++++++++++++*/
