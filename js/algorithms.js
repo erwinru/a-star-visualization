@@ -28,29 +28,22 @@ export class Algorithms {
   }
 
   aStar(delay, heuristic, startIcon, endIcon) {
-    const self = this;
-    // const startIcon = table.querySelector(".start_icon");
-    // const endIcon = table.querySelector(".end_icon");
-
-    function getPosFromElement(element) {
-      return [parseInt(element.dataset.col), parseInt(element.dataset.row)];
-    }
     const startCell = this.grid.grid[startIcon.y][startIcon.x];
     const endCell = this.grid.grid[endIcon.y][endIcon.x];
-
 
     let open = []; // set of cells to be calculated
     let closed = []; // set of cells already evaluated
 
     open.push(startCell);
 
-
     // loop
-    // let intr = setInterval(() => {
-    while (true) {
-
-      const current = this.getMinFCostCell(open);
-
+    while (delay === 0) {
+      let current = open[0];
+      for (let openCell of open) {
+        if (openCell.f <= current.f && openCell.h < current.h) {
+          current = openCell;
+        }
+      }
       // remove current from open array
       for (var i = 0; i < open.length; i++) {
         if (open[i] === current) {
@@ -61,14 +54,13 @@ export class Algorithms {
       this.grid.visualizeAStar(current);
 
       if (current === endCell) {
-        // clearInterval(intr);
         this.grid.retracePath(startCell, endCell);
         return;
-
       }
 
       for (const neighbour of this.grid.getNeighbourCells(current)) {
-        if (neighbour.getElement().classList.contains("wall") || closed.includes(neighbour)) {
+        if (neighbour.getElement().classList.contains("wall") || closed
+          .includes(neighbour)) {
           continue;
         }
         let gScore = current.g + this.heuristics[heuristic](current, neighbour);
@@ -84,19 +76,46 @@ export class Algorithms {
         }
       }
     }
-    // }, delay);
-  }
-
-  getMinFCostCell(open) {
-    let minFCost = Infinity;
-    let bestCell = null;
-    for (const currCell of open) {
-      if (currCell.f < minFCost) {
-        minFCost = currCell.f;
-        bestCell = currCell;
+    let intr = setInterval(() => {
+      let current = open[0];
+      for (let openCell of open) {
+        if (openCell.f <= current.f && openCell.h < current.h) {
+          current = openCell;
+        }
       }
-    }
-    return bestCell;
+      // remove current from open array
+      for (var i = 0; i < open.length; i++) {
+        if (open[i] === current) {
+          open.splice(i, 1);
+        }
+      }
+      closed.push(current);
+      this.grid.visualizeAStar(current);
+
+      if (current === endCell) {
+        clearInterval(intr);
+        this.grid.retracePath(startCell, endCell);
+        return;
+      }
+
+      for (const neighbour of this.grid.getNeighbourCells(current)) {
+        if (neighbour.getElement().classList.contains("wall") || closed
+          .includes(neighbour)) {
+          continue;
+        }
+        let gScore = current.g + this.heuristics[heuristic](current, neighbour);
+
+        if (!open.includes(neighbour) || gScore < neighbour.g) {
+          neighbour.g = gScore;
+          neighbour.h = this.heuristics[heuristic](neighbour, endCell);
+          neighbour.f = neighbour.g + neighbour.h;
+          neighbour.parent = current;
+          if (!open.includes(neighbour)) {
+            open.push(neighbour);
+          }
+        }
+      }
+    }, delay);
   }
 }
 export default Algorithms;

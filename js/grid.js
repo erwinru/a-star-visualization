@@ -39,7 +39,8 @@ class Grid {
         const checkX = cell.x + x;
         const checkY = cell.y + y;
 
-        if (checkX >= 0 && checkX <= this.gridSizeX && checkY >= 0 && checkY <= this.gridSizeY) {
+        if (checkX >= 0 && checkX <= this.gridSizeX && checkY >= 0 && checkY <= this
+          .gridSizeY) {
           yield this.grid[checkY][checkX];
         }
       }
@@ -58,41 +59,19 @@ class Grid {
     }
   }
 
-  retracePath(startCell, endCell) {
-    let path = [];
-    let currentCell = endCell;
-    while (currentCell !== startCell) {
-      path.push(currentCell);
-      currentCell = currentCell.parent;
-
+  retracePath(startCell, currCell) {
+    currCell.getElement().classList.add("shortestPath");
+    if (currCell === startCell) {
+      return;
+    } else {
+      this.retracePath(startCell, currCell.parent);
     }
-    path.reverse();
-
-    if (this.path !== null) {
-      for (const cell of this.path) {
-        cell.getElement().classList.remove("shortestPath");
-      }
-    }
-
-    this.path = path;
-    console.log(this.path);
-    for (const cell of this.path) {
-      cell.getElement().classList.add("shortestPath");
-    }
-
-    // currCell.getElement().classList.add("shortestPath");
-    // if (currCell !== startCell) {
-    //   this.retracePath(startCell, currCell.parent);
-    // }
-  }
-
-  visualizePath() {
-
   }
 
   placeElement(x, y, type) {
     const element = new GridElement(x, y, type);
-    let cell = document.getElementById("table").querySelector(`[data-col='${element.x}'][data-row='${element.y}']`);
+    let cell = document.getElementById("table").querySelector(
+      `[data-col='${element.x}'][data-row='${element.y}']`);
     cell.innerHTML = element.html;
     // element.makeMoveable();
     this.elements.push(element);
@@ -104,7 +83,6 @@ class GridElement {
     this.x = x;
     this.y = y;
     this.type = type;
-    this.showPath = false;
     this.html = `<i class="${this.type}_icon noselect material-icons">lens</i>`;
   }
 
@@ -133,16 +111,19 @@ class Cell {
 class UI {
   constructor(grid, algorithms) {
     this.gridObj = grid;
+    this.algorithmsObj = algorithms;
     this.grid = grid.grid;
     this.elements = grid.elements;
     this.algorithm = null;
     this.heuristic = null;
+    this.instantPath = false;
     this.drawWall();
     this.clearWall();
     this.dropDownMenu();
 
-    this.startAlgo(algorithms);
+    this.startAlgo();
     this.makeElementsMoveable();
+    this.refreshPath();
   }
 
   clearWall() {
@@ -154,7 +135,7 @@ class UI {
           tableCell.classList.remove("cellSeen");
           tableCell.classList.remove("cellCenter");
           tableCell.classList.remove("shortestPath");
-          this.elements.forEach(element => element.showPath = false);
+          this.instantPath = false;
         });
       });
     });
@@ -165,8 +146,10 @@ class UI {
     let drawing = true;
 
     table.addEventListener("mousedown", () => {
-      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
-      const isEmptyCell = !mouseHoverElement.hasChildNodes() && mouseHoverElement.nodeName === "TD";
+      const mouseHoverElement = document.elementFromPoint(window.event.clientX,
+        window.event.clientY);
+      const isEmptyCell = !mouseHoverElement.hasChildNodes() && mouseHoverElement
+        .nodeName === "TD";
       if (isEmptyCell) {
         if (mouseHoverElement.classList.contains("wall")) {
           table.addEventListener("mousemove", erase);
@@ -182,13 +165,16 @@ class UI {
       }
     });
 
-    function draw() {
-      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+    let draw = () => {
+      const mouseHoverElement = document.elementFromPoint(window.event.clientX,
+        window
+        .event.clientY);
       mouseHoverElement.classList.add("wall");
-    }
+    };
 
     function erase() {
-      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window
+        .event.clientY);
       mouseHoverElement.classList.remove("wall");
     }
   }
@@ -226,20 +212,7 @@ class UI {
     });
   }
 
-  startAlgo(algorithms) {
-    function clearBeforeStart(grid) {
-      grid.forEach(cellRow => {
-        cellRow.forEach(cell => {
-          cell.g = null;
-          cell.h = null;
-          cell.f = null;
-          cell.getElement().classList.remove("cellSeen");
-          cell.getElement().classList.remove("cellCenter");
-          cell.getElement().classList.remove("shortestPath");
-        });
-      });
-    }
-
+  startAlgo() {
     const startBtn = document.getElementById("start");
     startBtn.addEventListener("click", () => {
       if (this.algorithm === null) {
@@ -257,12 +230,46 @@ class UI {
           startBtn.classList.remove("alert");
         }, 1500);
       } else {
-        clearBeforeStart(this.grid);
-        this.elements.forEach(element => element.showPath = true);
-        algorithms.aStar(5, this.heuristic, this.elements[0], this.elements[1]);
+        this.clearBeforeStart(this.grid);
+        this.instantPath = true;
+        this.algorithmsObj.aStar(10, this.heuristic, this.elements[0], this
+          .elements[1]);
       }
     });
   }
+
+  clearBeforeStart(grid) {
+    grid.forEach(cellRow => {
+      cellRow.forEach(cell => {
+        cell.g = null;
+        cell.h = null;
+        cell.f = null;
+        cell.getElement().classList.remove("cellSeen");
+        cell.getElement().classList.remove("cellCenter");
+        cell.getElement().classList.remove("shortestPath");
+      });
+    });
+  }
+
+  refreshPath() {
+
+    document.addEventListener("mouseup", () => {
+      let mouseHoverElement = document.elementFromPoint(window.event.clientX,
+        window.event.clientY);
+      const isStartIcon = mouseHoverElement.classList.contains("start_icon");
+      const isEndIcon = mouseHoverElement.classList.contains("end_icon");
+      const isWall = mouseHoverElement.classList.contains("wall");
+      const isCell = mouseHoverElement.tagName === "TD";
+
+      if ((isStartIcon || isEndIcon || isWall || isCell) && this.instantPath) {
+        this.clearBeforeStart(this.grid);
+        this.algorithmsObj.aStar(0, this.heuristic, this.elements[0], this
+          .elements[
+            1]);
+      }
+    });
+  }
+
   makeElementsMoveable() {
     this.elements.forEach(element => {
       element.getElement().addEventListener("mousedown", function() {
@@ -273,18 +280,16 @@ class UI {
       });
 
       let moveElement = () => {
-        let mouseHoverElement = document.elementFromPoint(window.event.clientX, window.event.clientY);
+        let mouseHoverElement = document.elementFromPoint(window.event.clientX,
+          window.event.clientY);
         const isStartIcon = mouseHoverElement.classList.contains("start_icon");
         const isEndIcon = mouseHoverElement.classList.contains("end_icon");
         const hasChilds = mouseHoverElement.hasChildNodes();
-        if (!isStartIcon && !isEndIcon && !hasChilds) {
+        const isWall = mouseHoverElement.classList.contains("wall");
+        if (!isStartIcon && !isEndIcon && !hasChilds && !isWall) {
           element.x = mouseHoverElement.dataset.col;
           element.y = mouseHoverElement.dataset.row;
           mouseHoverElement.appendChild(element.getElement());
-          if (element.showPath) {
-            console.log(this.grid[this.elements[0].y][this.elements[0].x]);
-            this.gridObj.retracePath(this.grid[this.elements[0].y][this.elements[0].x], this.grid[this.elements[1].y][this.elements[1].x]);
-          }
         }
       };
     });

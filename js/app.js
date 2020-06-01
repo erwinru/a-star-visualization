@@ -12,6 +12,7 @@ import {
   const contentDivider = document.getElementById("content-divider");
 
   const cellSize = 25.5;
+  // console.log("hello");
   const windowHeight = window.innerHeight;
   const width = window.innerWidth;
   const height = (windowHeight - header.offsetHeight - contentDivider.offsetHeight);
