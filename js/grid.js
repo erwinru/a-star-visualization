@@ -129,7 +129,11 @@ class UI {
     const clearBtn = document.getElementById("clear");
     clearBtn.addEventListener("click", () => {
       this.clearBeforeStart();
-      this.instantPath = false;
+      const cells = document.getElementsByClassName("wall");
+      while (cells.length > 0) {
+        cells[0].classList.remove("wall");
+        this.instantPath = false;
+      }
     });
   }
 
@@ -138,9 +142,11 @@ class UI {
     let drawing = true;
 
     table.addEventListener("mousedown", () => {
-      const mouseHoverElement = document.elementFromPoint(window.event.clientX,
+      const mouseHoverElement = document.elementFromPoint(window.event
+        .clientX,
         window.event.clientY);
-      const isEmptyCell = !mouseHoverElement.hasChildNodes() && mouseHoverElement
+      const isEmptyCell = !mouseHoverElement.hasChildNodes() &&
+        mouseHoverElement
         .nodeName === "TD";
       if (isEmptyCell) {
         if (mouseHoverElement.classList.contains("wall")) {
@@ -165,7 +171,8 @@ class UI {
     };
 
     function erase() {
-      const mouseHoverElement = document.elementFromPoint(window.event.clientX, window
+      const mouseHoverElement = document.elementFromPoint(window.event.clientX,
+        window
         .event.clientY);
       mouseHoverElement.classList.remove("wall");
     }
@@ -234,8 +241,6 @@ class UI {
     let classes = ["cellSeen", "cellCenter", "shortestPath"];
     for (let classname of classes) {
       const cells = document.getElementsByClassName(classname);
-      console.log(cells);
-      console.log(cells.length);
       while (cells.length > 0) {
         cells[0].classList.remove(classname);
       }
@@ -251,7 +256,8 @@ class UI {
       const isWall = mouseHoverElement.classList.contains("wall");
       const isCell = mouseHoverElement.tagName === "TD";
 
-      if ((isStartIcon || isEndIcon || isWall || isCell) && this.instantPath) {
+      if ((isStartIcon || isEndIcon || isWall || isCell) && this
+        .instantPath) {
         this.clearBeforeStart();
         this.algorithmsObj.aStar(0, this.heuristic, this.elements[0], this
           .elements[
@@ -270,9 +276,11 @@ class UI {
       });
 
       let moveElement = () => {
-        let mouseHoverElement = document.elementFromPoint(window.event.clientX,
+        let mouseHoverElement = document.elementFromPoint(window.event
+          .clientX,
           window.event.clientY);
-        const isStartIcon = mouseHoverElement.classList.contains("start_icon");
+        const isStartIcon = mouseHoverElement.classList.contains(
+          "start_icon");
         const isEndIcon = mouseHoverElement.classList.contains("end_icon");
         const hasChilds = mouseHoverElement.hasChildNodes();
         const isWall = mouseHoverElement.classList.contains("wall");
