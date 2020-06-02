@@ -73,7 +73,6 @@ class Grid {
     let cell = document.getElementById("table").querySelector(
       `[data-col='${element.x}'][data-row='${element.y}']`);
     cell.innerHTML = element.html;
-    // element.makeMoveable();
     this.elements.push(element);
   }
 }
@@ -129,15 +128,8 @@ class UI {
   clearWall() {
     const clearBtn = document.getElementById("clear");
     clearBtn.addEventListener("click", () => {
-      document.getElementById("table").firstChild.childNodes.forEach(tableRow => {
-        tableRow.childNodes.forEach(tableCell => {
-          tableCell.classList.remove("wall");
-          tableCell.classList.remove("cellSeen");
-          tableCell.classList.remove("cellCenter");
-          tableCell.classList.remove("shortestPath");
-          this.instantPath = false;
-        });
-      });
+      this.clearBeforeStart();
+      this.instantPath = false;
     });
   }
 
@@ -230,7 +222,7 @@ class UI {
           startBtn.classList.remove("alert");
         }, 1500);
       } else {
-        this.clearBeforeStart(this.grid);
+        this.clearBeforeStart();
         this.instantPath = true;
         this.algorithmsObj.aStar(10, this.heuristic, this.elements[0], this
           .elements[1]);
@@ -238,21 +230,19 @@ class UI {
     });
   }
 
-  clearBeforeStart(grid) {
-    grid.forEach(cellRow => {
-      cellRow.forEach(cell => {
-        cell.g = null;
-        cell.h = null;
-        cell.f = null;
-        cell.getElement().classList.remove("cellSeen");
-        cell.getElement().classList.remove("cellCenter");
-        cell.getElement().classList.remove("shortestPath");
-      });
-    });
+  clearBeforeStart() {
+    let classes = ["cellSeen", "cellCenter", "shortestPath"];
+    for (let classname of classes) {
+      const cells = document.getElementsByClassName(classname);
+      console.log(cells);
+      console.log(cells.length);
+      while (cells.length > 0) {
+        cells[0].classList.remove(classname);
+      }
+    }
   }
 
   refreshPath() {
-
     document.addEventListener("mouseup", () => {
       let mouseHoverElement = document.elementFromPoint(window.event.clientX,
         window.event.clientY);
@@ -262,7 +252,7 @@ class UI {
       const isCell = mouseHoverElement.tagName === "TD";
 
       if ((isStartIcon || isEndIcon || isWall || isCell) && this.instantPath) {
-        this.clearBeforeStart(this.grid);
+        this.clearBeforeStart();
         this.algorithmsObj.aStar(0, this.heuristic, this.elements[0], this
           .elements[
             1]);
@@ -295,7 +285,6 @@ class UI {
     });
   }
 }
-
 
 export {
   Grid,
